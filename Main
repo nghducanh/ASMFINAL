@@ -1,0 +1,43 @@
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        try (Scanner sc = new Scanner(System.in)) {
+            StudentManager manager = new StudentManager();
+            int choice = 0;
+
+            do {
+                System.out.println("\n===== STUDENT MANAGEMENT MENU =====");
+                System.out.println("1. Add Student");
+                System.out.println("2. Edit Student");
+                System.out.println("3. Delete Student");
+                System.out.println("4. Display All Students");
+                System.out.println("5. Search Student");
+                System.out.println("6. Sort Students");
+                System.out.println("0. Exit");
+                System.out.print("Choose: ");
+
+                try {
+                    choice = Integer.parseInt(sc.nextLine());
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input! Please enter a number.");
+                    continue;
+                }
+
+                switch (choice) {
+                    case 1 -> manager.addStudent(sc);
+                    case 2 -> manager.editStudent(sc);
+                    case 3 -> manager.deleteStudent(sc);
+                    case 4 -> manager.display();
+                    case 5 -> manager.search(sc);
+                    case 6 -> manager.sortMenu();
+                    case 0 -> System.out.println("Exiting program...");
+                    default -> System.out.println("Invalid choice! Please select from the menu.");
+                }
+
+            } while (choice != 0);
+
+            sc.close();
+        }
+    }
+}
