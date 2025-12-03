@@ -1,0 +1,328 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+class Student {
+    private final String id;
+    private String name;
+    private double score;
+
+    public Student(String id, String name, double score) {
+        this.id = id;
+        this.name = name;
+        this.score = score;
+    }
+
+    public String getId() { return id; }
+    public String getName() { return name; }
+    public double getScore() { return score; }
+
+    public void setName(String name) { this.name = name; }
+    public void setScore(double score) { this.score = score; }
+
+    @Override
+    public String toString() {
+        return "ID: " + id + ", Name: " + name + ", Score: " + score;
+    }
+}
+
+public class StudentManager {
+
+    ArrayList<Student> list = new ArrayList<>();
+
+    // ===================== NHẬP TÊN =====================
+    private String inputName(Scanner sc) {
+        String name;
+        while (true) {
+            System.out.print("Enter name (letters only): ");
+            name = sc.nextLine().trim();
+            if (name.matches("[a-zA-Z ]+")) { // chỉ cho phép chữ và khoảng trắng
+                return name;
+            }
+            System.out.println("Invalid name! Only letters are allowed.");
+        }
+    }
+
+    // ===================== NHẬP ĐIỂM =====================
+    private double inputScore(Scanner sc) {
+        double score;
+        while (true) {
+            System.out.print("Enter score (1 - 10): ");
+            try {
+                score = Double.parseDouble(sc.nextLine());
+                if (score >= 1 && score <= 10) return score;
+                System.out.println("Score must be between 1 and 10!");
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid format! Please enter a number.");
+            }
+        }
+    }
+
+    // ===================== ADD =====================
+    public void addStudent(Scanner sc) {
+        System.out.print("Enter ID: ");
+        String id = sc.nextLine();
+
+        String name = inputName(sc);
+
+        double score = inputScore(sc);
+
+        list.add(new Student(id, name, score));
+        System.out.println("Student added successfully!");
+    }
+
+    // ===================== EDIT =====================
+    public void editStudent(Scanner sc) {
+        System.out.print("Enter ID to edit: ");
+        String id = sc.nextLine();
+
+        for (Student s : list) {
+            if (s.getId().equalsIgnoreCase(id)) {
+                String name = inputName(sc);
+                s.setName(name);
+
+                System.out.println("Enter new score:");
+                s.setScore(inputScore(sc));
+
+                System.out.println("Update successful!");
+                return;
+            }
+        }
+        System.out.println("Student not found!");
+    }
+
+    // ===================== DELETE =====================
+    public void deleteStudent(Scanner sc) {
+        System.out.print("Enter ID to delete: ");
+        String id = sc.nextLine();
+        for (Student s : list) {
+            if (s.getId().equalsIgnoreCase(id)) {
+                list.remove(s);
+                System.out.println("Delete successful!");
+                return;
+            }
+        }
+        System.out.println("Student not found!");
+    }
+
+    // ===================== DISPLAY =====================
+    public void display() {
+        if (list.isEmpty()) {
+            System.out.println("The list is empty!");
+            return;
+        }
+        System.out.println("\n===== STUDENT LIST =====");
+        for (Student s : list) {
+            System.out.println(s);
+        }
+    }
+
+    // ===================== SEARCH =====================
+    public void search(Scanner sc) {
+        if (list.isEmpty()) {
+            System.out.println("The list is empty!");
+            return;
+        }
+
+        System.out.println("\n===== SEARCH MENU =====");
+        System.out.println("1. Search by ID");
+        System.out.println("2. Search by Name");
+        System.out.println("3. Search by Score");
+        System.out.print("Choose: ");
+        int choice = Integer.parseInt(sc.nextLine());
+
+        switch (choice) {
+            case 1 -> searchByID(sc);
+            case 2 -> searchByName(sc);
+            case 3 -> searchByScore(sc);
+            default -> System.out.println("Invalid choice!");
+        }
+    }
+
+    private void searchByID(Scanner sc) {
+        System.out.print("Enter ID: ");
+        String id = sc.nextLine();
+        for (Student s : list) {
+            if (s.getId().equalsIgnoreCase(id)) {
+                System.out.println("Found: " + s);
+                return;
+            }
+        }
+        System.out.println("Not found!");
+    }
+
+    private void searchByName(Scanner sc) {
+        System.out.print("Enter name: ");
+        String name = sc.nextLine().toLowerCase();
+        boolean found = false;
+        for (Student s : list) {
+            if (s.getName().toLowerCase().contains(name)) {
+                System.out.println(s);
+                found = true;
+            }
+        }
+        if (!found) System.out.println("Not found!");
+    }
+
+    private void searchByScore(Scanner sc) {
+        System.out.print("Enter score to search: ");
+        double score = Double.parseDouble(sc.nextLine());
+        boolean found = false;
+        for (Student s : list) {
+            if (s.getScore() == score) {
+                System.out.println(s);
+                found = true;
+            }
+        }
+        if (!found) System.out.println("No student with score = " + score);
+    }
+
+    // ===================== SORT MENU =====================
+    public void sortMenu() {
+        if (list.isEmpty()) {
+            System.out.println("The list is empty!");
+            return;
+        }
+
+        System.out.println("\n===== SORT MENU =====");
+        System.out.println("1. Sort by ID (A-Z)");
+        System.out.println("2. Sort by Name (A-Z)");
+        System.out.println("3. Sort by Score (High → Low)");
+        System.out.print("Choose: ");
+        try (Scanner sc = new Scanner(System.in)) {
+            int choice = sc.nextInt();
+
+            switch (choice) {
+                case 1 -> quickSortByID(0, list.size() - 1);
+                case 2 -> quickSortByName(0, list.size() - 1);
+                case 3 -> quickSortByScore(0, list.size() - 1);
+                default -> System.out.println("Invalid choice!");
+            }
+        }
+    }
+
+    // ================= QUICK SORT ID =================
+    private void quickSortByID(int low, int high) {
+        if (low < high) {
+            int pi = partitionByID(low, high);
+            quickSortByID(low, pi - 1);
+            quickSortByID(pi + 1, high);
+        }
+        if (low == 0 && high == list.size() - 1)
+            System.out.println("Sorted by ID using Quick Sort!");
+    }
+
+    private int partitionByID(int low, int high) {
+        String pivot = list.get(high).getId();
+        int i = low - 1;
+        for (int j = low; j < high; j++) {
+            if (list.get(j).getId().compareTo(pivot) <= 0) {
+                i++;
+                Student temp = list.get(i);
+                list.set(i, list.get(j));
+                list.set(j, temp);
+            }
+        }
+        Student temp = list.get(i + 1);
+        list.set(i + 1, list.get(high));
+        list.set(high, temp);
+        return i + 1;
+    }
+
+    // ================= QUICK SORT NAME =================
+    private void quickSortByName(int low, int high) {
+        if (low < high) {
+            int pi = partitionByName(low, high);
+            quickSortByName(low, pi - 1);
+            quickSortByName(pi + 1, high);
+        }
+        if (low == 0 && high == list.size() - 1)
+            System.out.println("Sorted by Name using Quick Sort!");
+    }
+
+    private int partitionByName(int low, int high) {
+        String pivot = list.get(high).getName();
+        int i = low - 1;
+        for (int j = low; j < high; j++) {
+            if (list.get(j).getName().compareTo(pivot) <= 0) {
+                i++;
+                Student temp = list.get(i);
+                list.set(i, list.get(j));
+                list.set(j, temp);
+            }
+        }
+        Student temp = list.get(i + 1);
+        list.set(i + 1, list.get(high));
+        list.set(high, temp);
+        return i + 1;
+    }
+
+    // ================= QUICK SORT SCORE =================
+    private void quickSortByScore(int low, int high) {
+        if (low < high) {
+            int pi = partitionByScore(low, high);
+            quickSortByScore(low, pi - 1);
+            quickSortByScore(pi + 1, high);
+        }
+        if (low == 0 && high == list.size() - 1)
+            System.out.println("Sorted by Score descending using Quick Sort!");
+    }
+
+    private int partitionByScore(int low, int high) {
+        double pivot = list.get(high).getScore();
+        int i = low - 1;
+        for (int j = low; j < high; j++) {
+            if (list.get(j).getScore() >= pivot) { // descending
+                i++;
+                Student temp = list.get(i);
+                list.set(i, list.get(j));
+                list.set(j, temp);
+            }
+        }
+        Student temp = list.get(i + 1);
+        list.set(i + 1, list.get(high));
+        list.set(high, temp);
+        return i + 1;
+    }
+    public Student getFirstStudent() {
+    if (list.isEmpty()) return null;
+    return list.get(0); // luôn 1 bước
+}
+public int countHighScore(double threshold) {
+    int count = 0;
+    for (Student s : list) {
+        if (s.getScore() >= threshold) {
+            count++;
+        }
+    }
+    return count; // chạy N lần
+}
+public Student SearchById(String id) {
+    int left = 0;
+    int right = list.size() - 1;
+
+    while (left <= right) {
+        int mid = (left + right) / 2;
+        Student midStudent = list.get(mid);
+
+        int cmp = midStudent.getId().compareTo(id);
+
+        if (cmp == 0) return midStudent;
+        else if (cmp < 0) left = mid + 1;
+        else right = mid - 1;
+    }
+    return null; // không tìm thấy
+}
+public void bubbleSortByScore() {
+    int n = list.size();
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n - 1; j++) {
+            if (list.get(j).getScore() > list.get(j + 1).getScore()) {
+                Student temp = list.get(j);
+                list.set(j, list.get(j + 1));
+                list.set(j + 1, temp);
+            }
+        }
+    }
+    System.out.println("Sorted by Bubble Sort (O(N^2))");
+}
+}
