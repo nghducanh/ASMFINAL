@@ -283,46 +283,5 @@ public class StudentManager {
         list.set(high, temp);
         return i + 1;
     }
-    public Student getFirstStudent() {
-    if (list.isEmpty()) return null;
-    return list.get(0); // luôn 1 bước
-}
-public int countHighScore(double threshold) {
-    int count = 0;
-    for (Student s : list) {
-        if (s.getScore() >= threshold) {
-            count++;
-        }
-    }
-    return count; // chạy N lần
-}
-public Student SearchById(String id) {
-    int left = 0;
-    int right = list.size() - 1;
-
-    while (left <= right) {
-        int mid = (left + right) / 2;
-        Student midStudent = list.get(mid);
-
-        int cmp = midStudent.getId().compareTo(id);
-
-        if (cmp == 0) return midStudent;
-        else if (cmp < 0) left = mid + 1;
-        else right = mid - 1;
-    }
-    return null; // không tìm thấy
-}
-public void bubbleSortByScore() {
-    int n = list.size();
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n - 1; j++) {
-            if (list.get(j).getScore() > list.get(j + 1).getScore()) {
-                Student temp = list.get(j);
-                list.set(j, list.get(j + 1));
-                list.set(j + 1, temp);
-            }
-        }
-    }
-    System.out.println("Sorted by Bubble Sort (O(N^2))");
-}
+    
 }
